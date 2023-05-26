@@ -1,0 +1,34 @@
+package edu.uj.po.interfaces;
+
+import java.util.Optional;
+
+public class PieceOnTheWayValidator implements MoveValidator {
+    private Optional<MoveValidator> next;
+    public PieceOnTheWayValidator(MoveValidator next){
+        this.next = Optional.of(next);
+    }
+    public PieceOnTheWayValidator() {
+        this.next = Optional.empty();
+    }
+    @Override
+    public boolean Validate(Move move, IBoardPrototype board) {
+        //Validation
+        boolean isEligible = true;
+        var pieceTakingMaybe = board.GetPieces().stream()
+            .filter(piece -> piece.getPosition().rank() == move.finalPosition().rank() &&
+                    piece.getPosition().file() == move.finalPosition().file()).findFirst();
+        var pieceToBeTakenMaybe = board.GetPieces().stream()
+                .filter(piece -> piece.getPosition().rank() == move.initialPosition().rank() &&
+                        piece.getPosition().file() == move.initialPosition().file()).findFirst();
+        if(!pieceTakingMaybe.isPresent()){
+            return false;
+        }
+        if(pieceToBeTakenMaybe.isPresent()){
+            isEligible = pieceTakingMaybe.get().color != pieceToBeTakenMaybe.get().color;
+        }
+        if(isEligible && next.isPresent()){
+            isEligible = next.get().Validate(move, board);
+        }
+        return isEligible;
+    }
+}
