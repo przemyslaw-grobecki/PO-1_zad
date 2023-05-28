@@ -56,34 +56,36 @@ public class ChessSolver implements Setup, Solver {
 
     @Override
     public Optional<Move> findStalemateInOneMove(Color color) {
-        AtomicReference<Optional<Move>> mateMove = new AtomicReference<>(Optional.empty());
+        AtomicReference<Optional<Move>> stalemateMove = new AtomicReference<>(Optional.empty());
         board.GetPieces().stream()
             .filter(pieceThatAttacks -> pieceThatAttacks.color == color)
-            .forEach(pieceThatAttacks -> {
+            .anyMatch(pieceThatAttacks -> {
                 var possibleAttackingMoves = pieceThatAttacks.ListAllPossibleMoves();
-                possibleAttackingMoves.forEach(attackingMove -> {
+                var isStalemate = possibleAttackingMoves.stream().anyMatch(attackingMove -> {
                     var boardBeforeFirstMove = board.Copy();
                     if(boardBeforeFirstMove.MovePiece(attackingMove)){
-                        if(boardBeforeFirstMove.CheckForStalemate(color)){
-                            mateMove.set(Optional.of(attackingMove));
-                            boardBeforeFirstMove.GetPieces().stream()
+                        if(!boardBeforeFirstMove.CheckForMate(color)){
+                            var noAvailableActions = boardBeforeFirstMove.GetPieces().stream()
                                 .filter(pieceThatDefends -> pieceThatDefends.color != color)
-                                .forEach(pieceThatDefends -> {
+                                .allMatch(pieceThatDefends -> {
                                     var possibleDefendingMoves = pieceThatDefends.ListAllPossibleMoves();
-                                    possibleDefendingMoves.forEach(defendingMove -> {
+                                    var noAvailableMoves = possibleDefendingMoves.stream().noneMatch(defendingMove -> {
                                         var boardBeforeSecondMove = boardBeforeFirstMove.Copy();
-                                        if(boardBeforeSecondMove.MovePiece(defendingMove)){
-                                            if(!boardBeforeSecondMove.CheckForStalemate(color)){
-                                                mateMove.set(Optional.empty());
-                                            }
-                                        }
+                                        return boardBeforeSecondMove.MovePiece(defendingMove);
                                     });
+                                    return noAvailableMoves;
                                 });
+                            if(noAvailableActions){
+                                stalemateMove.set(Optional.of(attackingMove));
+                                return true;
+                            }
                         }
                     }
+                    return false;
                 });
+                return isStalemate;
             });
-        return mateMove.get();
+        return stalemateMove.get();
     }
 
     public void PrintBoard(){
