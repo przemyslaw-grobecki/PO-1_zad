@@ -22,29 +22,34 @@ public class ChessSolver implements Setup, Solver {
         AtomicReference<Optional<Move>> mateMove = new AtomicReference<>(Optional.empty());
         board.GetPieces().stream()
             .filter(pieceThatAttacks -> pieceThatAttacks.color == color)
-            .forEach(pieceThatAttacks -> {
+            .anyMatch(pieceThatAttacks -> {
                 var possibleAttackingMoves = pieceThatAttacks.ListAllPossibleMoves();
-                possibleAttackingMoves.forEach(attackingMove -> {
+                var isMate = possibleAttackingMoves.stream().anyMatch(attackingMove -> {
                     var boardBeforeFirstMove = board.Copy();
                     if(boardBeforeFirstMove.MovePiece(attackingMove)){
                         if(boardBeforeFirstMove.CheckForMate(color)){
-                            mateMove.set(Optional.of(attackingMove));
-                            boardBeforeFirstMove.GetPieces().stream()
+                            var noAvailableDefences = boardBeforeFirstMove.GetPieces().stream()
                                 .filter(pieceThatDefends -> pieceThatDefends.color != color)
-                                .forEach(pieceThatDefends -> {
+                                .allMatch(pieceThatDefends -> {
                                     var possibleDefendingMoves = pieceThatDefends.ListAllPossibleMoves();
-                                    possibleDefendingMoves.forEach(defendingMove -> {
-                                        var boardBeforeSecondMove = board.Copy();
+                                    var noCounterMoves = possibleDefendingMoves.stream().allMatch(defendingMove -> {
+                                        var boardBeforeSecondMove = boardBeforeFirstMove.Copy();
                                         if(boardBeforeSecondMove.MovePiece(defendingMove)){
-                                            if(!boardBeforeSecondMove.CheckForMate(color)){
-                                                mateMove.set(Optional.empty());
-                                            }
+                                            return boardBeforeSecondMove.CheckForMate(color);
                                         }
+                                        return true;
                                     });
+                                    return noCounterMoves;
                                 });
+                            if(noAvailableDefences){
+                                mateMove.set(Optional.of(attackingMove));
+                                return true;
+                            }
                         }
                     }
+                    return false;
                 });
+                return isMate;
             });
         return mateMove.get();
     }
@@ -66,7 +71,7 @@ public class ChessSolver implements Setup, Solver {
                                 .forEach(pieceThatDefends -> {
                                     var possibleDefendingMoves = pieceThatDefends.ListAllPossibleMoves();
                                     possibleDefendingMoves.forEach(defendingMove -> {
-                                        var boardBeforeSecondMove = board.Copy();
+                                        var boardBeforeSecondMove = boardBeforeFirstMove.Copy();
                                         if(boardBeforeSecondMove.MovePiece(defendingMove)){
                                             if(!boardBeforeSecondMove.CheckForStalemate(color)){
                                                 mateMove.set(Optional.empty());
@@ -79,5 +84,14 @@ public class ChessSolver implements Setup, Solver {
                 });
             });
         return mateMove.get();
+    }
+
+    public void PrintBoard(){
+        board.GetPieces().forEach(piece -> {
+            System.out.println();
+            System.out.println(piece.getPosition());
+            System.out.println(piece.color);
+            System.out.println(piece.pieceType);
+        });
     }
 }

@@ -3,7 +3,7 @@ package edu.uj.po.interfaces;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Piece {
+public class Piece implements Cloneable{
     private List<MoveGeneratorCommand> moveGeneratorCommands;
     private Position position;
     public ChessPiece pieceType;
@@ -26,5 +26,16 @@ public class Piece {
     }
     public Position getPosition(){
         return position;
+    }
+
+    @Override
+    public Piece clone() {
+        try {
+            Piece clone = (Piece) super.clone();
+            // TODO: copy mutable state here, so the clone can't change the internals of the original
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }
