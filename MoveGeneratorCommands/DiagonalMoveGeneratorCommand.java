@@ -1,4 +1,9 @@
-package edu.uj.po.interfaces;
+package edu.uj.po.interfaces.MoveGeneratorCommands;
+
+import edu.uj.po.interfaces.File;
+import edu.uj.po.interfaces.Move;
+import edu.uj.po.interfaces.Position;
+import edu.uj.po.interfaces.Rank;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,6 +1,10 @@
-package edu.uj.po.interfaces;
+package edu.uj.po.interfaces.MoveValidators;
 
-public class StartingValidator implements MoveValidator{
+import edu.uj.po.interfaces.IBoardPrototype;
+import edu.uj.po.interfaces.Move;
+import edu.uj.po.interfaces.MoveValidators.MoveValidator;
+
+public class StartingValidator implements MoveValidator {
     private MoveValidator next;
     public StartingValidator(MoveValidator moveValidator){
         this.next = moveValidator;

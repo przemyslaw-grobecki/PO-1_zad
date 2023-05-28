@@ -1,4 +1,6 @@
-package edu.uj.po.interfaces;
+package edu.uj.po.interfaces.MoveValidators;
+
+import edu.uj.po.interfaces.*;
 
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;

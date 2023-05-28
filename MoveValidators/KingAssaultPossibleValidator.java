@@ -1,4 +1,7 @@
-package edu.uj.po.interfaces;
+package edu.uj.po.interfaces.MoveValidators;
+
+import edu.uj.po.interfaces.IBoardPrototype;
+import edu.uj.po.interfaces.Move;
 
 import java.util.Optional;
 
