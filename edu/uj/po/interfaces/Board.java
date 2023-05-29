@@ -1,7 +1,6 @@
 package edu.uj.po.interfaces;
 
 import edu.uj.po.interfaces.MoveValidators.*;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
