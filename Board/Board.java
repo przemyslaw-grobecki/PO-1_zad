@@ -40,7 +40,7 @@ public class Board implements IBoardPrototype {
 
     @Override
     public boolean MovePiece(Move move){
-        System.out.printf("Moving piece from %s to %s%n", move.initialPosition(), move.finalPosition());
+        //System.out.printf("Moving piece from %s to %s%n", move.initialPosition(), move.finalPosition());
         AtomicBoolean hasMoved = new AtomicBoolean(false);
         var pieceToMove = this.pieces.stream().filter(piece -> piece.getPosition().file() == move.initialPosition().file() &&
                 piece.getPosition().rank() == move.initialPosition().rank()).findFirst();
@@ -49,19 +49,31 @@ public class Board implements IBoardPrototype {
         pieceToMove.ifPresent(piece -> {
             if(moveValidator.Validate(move, this)) {
                 piece.setPosition(move.finalPosition());
-                if(piece.pieceType == ChessPiece.PAWN) {
-                    if ((piece.color == Color.WHITE && piece.getPosition().rank() == Rank.EIGHTH) ||
-                            (piece.color == Color.BLACK && piece.getPosition().rank() == Rank.FIRST)) {
-                        piece.pieceType = ChessPiece.QUEEN;
+                //Still there is a need to check if king is vulnerable
+                var enemyTeam = pieces.stream().filter(enemy -> piece.color != enemy.color).toList();
+                var alliedKing = pieces.stream().filter(k -> k.color == piece.color && k.pieceType == ChessPiece.KING).findFirst().get();
+                var isKingAlive = enemyTeam.stream().noneMatch(enemy -> {
+                    var moves = enemy.ListAllPossibleMoves();
+                    return moves.stream()
+                        .filter(enemyMove -> enemyMove.finalPosition().file() == alliedKing.getPosition().file() &&
+                            enemyMove.finalPosition().rank() == alliedKing.getPosition().rank())
+                        .anyMatch(enemyMove -> moveValidator.Validate(enemyMove, this));
+                });
+                if (isKingAlive) {
+                    if (piece.pieceType == ChessPiece.PAWN) {
+                        if ((piece.color == Color.WHITE && piece.getPosition().rank() == Rank.EIGHTH) ||
+                                (piece.color == Color.BLACK && piece.getPosition().rank() == Rank.FIRST)) {
+                            piece.pieceType = ChessPiece.QUEEN;
+                        }
                     }
+                    pieceOnTheWayMaybe.ifPresent(pieceOnTheWay ->
+                            pieces.remove(pieceOnTheWay));
+                    if (isEnPassantDetected != null) {
+                        pieces.remove(isEnPassantDetected);
+                        isEnPassantDetected = null;
+                    }
+                    hasMoved.set(true);
                 }
-                pieceOnTheWayMaybe.ifPresent(pieceOnTheWay ->
-                        pieces.remove(pieceOnTheWay));
-                if (isEnPassantDetected != null){
-                    pieces.remove(isEnPassantDetected);
-                    isEnPassantDetected = null;
-                }
-                hasMoved.set(true);
             }
         });
         return hasMoved.get();
