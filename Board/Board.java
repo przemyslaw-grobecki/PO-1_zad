@@ -5,8 +5,12 @@ import Pieces.Piece;
 import edu.uj.po.interfaces.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static java.lang.Math.abs;
 
 public class Board implements IBoardPrototype {
 
@@ -119,8 +123,76 @@ public class Board implements IBoardPrototype {
     }
 
     @Override
+    public List<Piece> GetTeam(Color color){
+        return pieces.stream().filter(piece -> piece.color == color).toList();
+    }
+
+    @Override
+    public List<Piece> GetFigures(Color color, ChessPiece pieceType){
+        return pieces.stream().filter(piece -> piece.pieceType == pieceType && piece.color == color).toList();
+    }
+
+    @Override
+    public Optional<Piece> GetPiece(Position position){
+        return pieces.stream().filter(piece -> piece.getPosition().rank() == position.rank() &&
+                piece.getPosition().file() == position.file()).findFirst();
+    }
+
+    @Override
+    public Optional<Piece> GetPiece(int file, int rank) {
+        return pieces.stream().filter(piece -> piece.getPosition().file().ordinal() == file &&
+                piece.getPosition().rank().ordinal() == rank).findFirst();
+    }
+
+    @Override
+    public Optional<Piece> GetPiece(File file, Rank rank) {
+        return pieces.stream().filter(piece -> piece.getPosition().file() == file &&
+                piece.getPosition().rank() == rank).findFirst();
+    }
+
+    @Override
     public List<Piece> GetPieces() {
         return pieces;
+    }
+
+    @Override
+    public List<Piece> GetPiecesBetween(Position source, Position destination) {
+        List<Piece> piecesBetween = new ArrayList<>();
+        var horizontalMovement = destination.file().ordinal() - source.file().ordinal();
+        var horizontalDirection = horizontalMovement > 0 ? 1 : -1;
+        var verticalMovement = destination.rank().ordinal() - source.rank().ordinal();
+        var verticalDirection = horizontalDirection > 0 ? 1 : -1;
+        var isDiagonal = abs(horizontalMovement) == abs(verticalMovement);
+        if(!isDiagonal && horizontalMovement != 0 && verticalMovement != 0){
+            return Collections.emptyList();
+        }
+
+        if(isDiagonal){
+            for (int file = source.file().ordinal() + horizontalDirection;
+                 file * horizontalDirection < destination.file().ordinal() * horizontalDirection;
+                 file = file + horizontalDirection){
+                for (int rank = source.rank().ordinal() + verticalDirection;
+                     rank * verticalDirection < destination.rank().ordinal() * verticalDirection;
+                     rank = rank + verticalDirection) {
+                    if(abs(file) - source.file().ordinal() == abs(rank) - source.rank().ordinal()){
+                        this.GetPiece(file, rank).ifPresent(piecesBetween::add);
+                    }
+                }
+            }
+        }
+        else {
+            for (int file = source.file().ordinal() + horizontalDirection;
+                 file * horizontalDirection < destination.file().ordinal() * horizontalDirection;
+                 file = file + horizontalDirection) {
+                this.GetPiece(file, source.rank().ordinal()).ifPresent(piecesBetween::add);
+            }
+            for (int rank = source.rank().ordinal() + verticalDirection;
+                 rank * verticalDirection < destination.rank().ordinal() * verticalDirection;
+                 rank = rank + verticalDirection) {
+                this.GetPiece(source.file().ordinal(), rank).ifPresent(piecesBetween::add);
+            }
+        }
+        return piecesBetween;
     }
 
     @Override

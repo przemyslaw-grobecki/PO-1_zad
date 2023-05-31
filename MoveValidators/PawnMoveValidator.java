@@ -17,25 +17,18 @@ public class PawnMoveValidator implements MoveValidator {
     }
     @Override
     public boolean Validate(Move move, IBoardPrototype board) {
-        AtomicBoolean isEligible = new AtomicBoolean(true);
-        if(move.initialPosition().file() != move.finalPosition().file() && next.isPresent()){
+        var movingPiece = board.GetPiece(move.initialPosition());
+        if(movingPiece.isEmpty()){
+            return false;
+        }
+        if((move.initialPosition().file() != move.finalPosition().file() ||
+                movingPiece.get().pieceType != ChessPiece.PAWN) && next.isPresent()) {
             return next.get().Validate(move, board);
         }
-        var maybePawn = board.GetPieces()
-            .stream()
-            .filter(piece ->
-                piece.getPosition().file() == move.initialPosition().file() &&
-                    piece.getPosition().rank() == move.initialPosition().rank() &&
-                    piece.pieceType == ChessPiece.PAWN)
-            .findFirst();
-        maybePawn.ifPresent(pawn -> isEligible.set((board.GetPieces()
-            .stream()
-            .noneMatch(piece ->
-                piece.getPosition().file() == move.finalPosition().file() &&
-                    piece.getPosition().rank() == move.finalPosition().rank()))));
-        if(isEligible.get() && next.isPresent()){
-            isEligible.set(next.get().Validate(move, board));
+        var isEligible = board.GetPiece(move.finalPosition()).isEmpty();
+        if(isEligible && next.isPresent()){
+            isEligible = next.get().Validate(move, board);
         }
-        return isEligible.get();
+        return isEligible;
     }
 }

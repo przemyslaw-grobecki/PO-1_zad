@@ -1,15 +1,219 @@
 import edu.uj.po.interfaces.*;
 
+import static java.lang.Math.abs;
+
+
 public class Main {
 
 
     public static void main(String[] args) {
+
+//        Position destination = new Position(File.a, Rank.FIRST);
+//        Position source = new Position(File.h, Rank.EIGHTH);
+//
+//        var horizontalMovement = destination.file().ordinal() - source.file().ordinal();
+//        var horizontalDirection = horizontalMovement > 0 ? 1 : -1;
+//        var verticalMovement = destination.rank().ordinal() - source.rank().ordinal();
+//        var verticalDirection = horizontalDirection > 0 ? 1 : -1;
+//
+//        for (int file = source.file().ordinal() + horizontalDirection; file * horizontalDirection < destination.file().ordinal() * horizontalDirection; file = file + horizontalDirection){
+//            for (int rank = source.rank().ordinal() + verticalDirection; rank * verticalDirection < destination.rank().ordinal() * verticalDirection; rank = rank + verticalDirection) {
+//                if(abs(file) - source.file().ordinal() == abs(rank) - source.rank().ordinal()){
+//                    System.out.println("%d %d".formatted(file, rank));
+//                }
+//            }
+//        }
+
+
         ChessSolver chessSolver = new ChessSolver();
-        var color = Setup_17(chessSolver);
+        var color = Setup_1(chessSolver);
         chessSolver.findMateInOneMove(color)
-                .ifPresent(System.out::println);
-//        chessSolver.findStalemateInOneMove(color)
-//                .ifPresent(System.out::println);
+                .ifPresent(move -> {
+                    System.out.println("Test 1 result: " + move);
+                    if(!move.toString().equals("H4-F3")){
+                        throw new RuntimeException("Test 1 - failed.");
+                    };
+                } );
+        chessSolver.reset();
+
+        color = Setup_2(chessSolver);
+        chessSolver.findMateInOneMove(color)
+                .ifPresent(move -> {
+                    System.out.println("Test 2 result: " + move);
+                    if(!move.toString().equals("G4-G7")){
+                       // throw new RuntimeException("Test 2 - failed.");
+                    };
+                } );
+        chessSolver.reset();
+
+        color = Setup_3(chessSolver);
+        chessSolver.findMateInOneMove(color)
+                .ifPresent(move -> {
+                    System.out.println("Test 3 result: " + move);
+                    if(!move.toString().equals("F7-F1")){
+                        throw new RuntimeException("Test 3 - failed.");
+                    };
+                } );
+        chessSolver.reset();
+
+        color = Setup_4(chessSolver);
+        chessSolver.findMateInOneMove(color)
+                .ifPresent(move -> {
+                    System.out.println("Test 4 result: " + move);
+                    if(!move.toString().equals("F3-F7")){
+                        throw new RuntimeException("Test 4 - failed.");
+                    };
+                } );
+        chessSolver.reset();
+
+        color = Setup_5(chessSolver);
+        chessSolver.findMateInOneMove(color)
+                .ifPresent(move -> {
+                    System.out.println("Test 5 result: " + move);
+                    if(!move.toString().equals("E8-E1")){
+                        throw new RuntimeException("Test 5 - failed.");
+                    };
+                } );
+        chessSolver.reset();
+
+        color = Setup_6(chessSolver);
+        chessSolver.findMateInOneMove(color)
+                .ifPresent(move -> {
+                    System.out.println("Test 6 result: " + move);
+                    if(!move.toString().equals("A8-G8")){
+                        throw new RuntimeException("Test 6 - failed.");
+                    };
+                } );
+        chessSolver.reset();
+
+        color = Setup_7(chessSolver);
+        chessSolver.findMateInOneMove(color)
+                .ifPresent(move -> {
+                    System.out.println("Test 7 result: " + move);
+                    if(!move.toString().equals("A6-F1")){
+                        throw new RuntimeException("Test 7 - failed.");
+                    };
+                } );
+        chessSolver.reset();
+
+        color = Setup_8(chessSolver);
+        chessSolver.findMateInOneMove(color)
+                .ifPresent(move -> {
+                    System.out.println("Test 8 result: " + move);
+                    if(!move.toString().equals("H6-D6")){
+                        throw new RuntimeException("Test 8 - failed.");
+                    };
+                } );
+        chessSolver.reset();
+
+        color = Setup_9(chessSolver);
+        chessSolver.findMateInOneMove(color)
+                .ifPresent(move -> {
+                    System.out.println("Test 9 result: " + move);
+                    if(!move.toString().equals("B3-B1")){
+                        throw new RuntimeException("Test 9 - failed.");
+                    };
+                } );
+        chessSolver.reset();
+
+        color = Setup_10(chessSolver);
+        chessSolver.findMateInOneMove(color)
+                .ifPresent(move -> {
+                    System.out.println("Test 10 result: " + move);
+                    if(!move.toString().equals("H2-D6")){
+                        throw new RuntimeException("Test 10 - failed.");
+                    };
+                } );
+        chessSolver.reset();
+
+        color = Setup_11(chessSolver);
+        chessSolver.findMateInOneMove(color)
+                .ifPresent(move -> {
+                    System.out.println("Test 11 result: " + move);
+                    if(!move.toString().equals("F4-C7")){
+                        throw new RuntimeException("Test 11 - failed.");
+                    };
+                } );
+        chessSolver.reset();
+
+        color = Setup_12(chessSolver);
+        chessSolver.findMateInOneMove(color)
+                .ifPresent(move -> {
+                    System.out.println("Test 12 result: " + move);
+                    if(!move.toString().equals("C3-A5")){
+                        throw new RuntimeException("Test 12 - failed.");
+                    };
+                } );
+        chessSolver.reset();
+
+        color = Setup_13(chessSolver);
+        chessSolver.findMateInOneMove(color)
+                .ifPresent(move -> {
+                    System.out.println("Test 13 result: " + move);
+                    if(!move.toString().equals("C5-D7")){
+                        throw new RuntimeException("Test 13 - failed.");
+                    };
+                } );
+        chessSolver.reset();
+
+        color = Setup_14(chessSolver);
+        chessSolver.findMateInOneMove(color)
+                .ifPresent(move -> {
+                    System.out.println("Test 14 result: " + move);
+                    if(!move.toString().equals("C3-G7")){
+                        throw new RuntimeException("Test 14 - failed.");
+                    };
+                } );
+        chessSolver.reset();
+
+        color = Setup_15(chessSolver);
+        chessSolver.findMateInOneMove(color)
+                .ifPresent(move -> {
+                    System.out.println("Test 15 result: " + move);
+                    if(!move.toString().equals("E7-H4")){
+                        throw new RuntimeException("Test 15 - failed.");
+                    };
+                } );
+        chessSolver.reset();
+
+        color = Setup_16(chessSolver);
+        chessSolver.findMateInOneMove(color)
+                .ifPresent(move -> {
+                    System.out.println("Test 16 result: " + move);
+                    if(!move.toString().equals("B4-H4")){
+                        throw new RuntimeException("Test 16 - failed.");
+                    };
+                } );
+        chessSolver.reset()
+        ;
+        color = Setup_17(chessSolver);
+        chessSolver.findMateInOneMove(color)
+                .ifPresent(move -> {
+                    System.out.println("Test 17 result: " + move);
+                    if(!move.toString().equals("D4-B4")){
+                        throw new RuntimeException("Test 17 - failed.");
+                    };
+                } );
+        chessSolver.reset();
+
+        color = Setup_18(chessSolver);
+        chessSolver.findMateInOneMove(color)
+                .ifPresent(move -> {
+                    System.out.println("Test 18 result: " + move);
+                    if(!move.toString().equals("D4-B4")){
+                        throw new RuntimeException("Test 18 - failed.");
+                    };
+                } );
+        chessSolver.reset();
+
+        color = Setup_EnPassantHard(chessSolver);
+        chessSolver.findMateInOneMove(color)
+                .ifPresent(move -> {
+                    System.out.println("Test EnPassantHard result: " + move);
+                    if(!move.toString().equals("D5-E6")){
+                        throw new RuntimeException("Test EnPassantHard - failed.");
+                    };
+                } );
     }
 
     //Mate: H4-F3
