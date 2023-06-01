@@ -23,47 +23,40 @@ public class PawnStrikeValidator implements MoveValidator {
     @Override
     public boolean Validate(Move move, IBoardPrototype board) {
         //Validation
-        AtomicBoolean isEligible = new AtomicBoolean(true);
-        AtomicReference<Piece> isEnPassant = new AtomicReference<>(null);
-        if(move.initialPosition().file() == move.finalPosition().file() && next.isPresent()){
+        var pieceMoving = board.GetPiece(move.initialPosition());
+        if(pieceMoving.isEmpty()){
+            return false;
+        }
+        if((move.initialPosition().file() == move.finalPosition().file() ||
+                pieceMoving.get().pieceType != ChessPiece.PAWN) && next.isPresent()){
             return next.get().Validate(move, board);
         }
-        var maybePawn = board.GetPieces()
-            .stream()
-            .filter(piece ->
-                piece.getPosition().file() == move.initialPosition().file() &&
-                piece.getPosition().rank() == move.initialPosition().rank() &&
-                piece.pieceType == ChessPiece.PAWN)
-            .findFirst();
-        maybePawn.ifPresent(pawn -> {
-            if(board.GetPieces().stream().noneMatch(piece ->
-                    piece.getPosition().file() == move.finalPosition().file() &&
-                    piece.getPosition().rank() == move.finalPosition().rank() &&
-                    piece.color != pawn.color)){
-                //Check for En Passant
-                if(pawn.color == Color.BLACK && move.initialPosition().rank() == Rank.FOURTH ||
-                    pawn.color == Color.WHITE && move.initialPosition().rank() == Rank.FIFTH){
-                    isEligible.set(board.GetPieces().stream().anyMatch(piece -> {
-                        var match = piece.pieceType == ChessPiece.PAWN && (
-                            piece.getPosition().file().ordinal() == pawn.getPosition().file().ordinal() + 1 ||
-                            piece.getPosition().file().ordinal() == pawn.getPosition().file().ordinal() - 1);
-                        if(match){
-                            isEnPassant.set(piece);
-                        }
-                        return match;
-                    }));
-                }else {
-                    isEligible.set(false);
-                }
+        var isEligible = true;
+        AtomicReference<Piece> isEnPassant = new AtomicReference<>(null);
+
+        var pieceToKill = board.GetPiece(move.finalPosition());
+        if(pieceToKill.isEmpty()){
+            if(pieceMoving.get().color == Color.BLACK && move.initialPosition().rank() == Rank.FOURTH ||
+                pieceMoving.get().color == Color.WHITE && move.initialPosition().rank() == Rank.FIFTH){
+               isEligible = board.GetPieces().stream().anyMatch(piece -> {
+                    var match = piece.pieceType == ChessPiece.PAWN && (
+                        piece.getPosition().file().ordinal() == pieceMoving.get().getPosition().file().ordinal() + 1 ||
+                            piece.getPosition().file().ordinal() == pieceMoving.get().getPosition().file().ordinal() - 1);
+                    if(match){
+                        isEnPassant.set(piece);
+                    }
+                    return match;
+                });
+            }else {
+                isEligible = false;
             }
-        });
+        }
         if(isEnPassant.get() != null){
             enPassantHandler.HandleEnPassant(isEnPassant.get());
         }
-
-        if(isEligible.get() && next.isPresent()){
-            isEligible.set(next.get().Validate(move, board));
+        if(isEligible && next.isPresent()){
+            isEligible = next.get().Validate(move, board);
         }
-        return isEligible.get();
+        return isEligible;
     }
 }

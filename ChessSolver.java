@@ -23,16 +23,16 @@ public class ChessSolver implements Setup, Solver {
     @Override
     public Optional<Move> findMateInOneMove(Color color) {
         AtomicReference<Optional<Move>> mateMove = new AtomicReference<>(Optional.empty());
-        board.GetPieces().stream()
-            .filter(pieceThatAttacks -> pieceThatAttacks.color == color)
+        board.GetAlliedTeam(color)
+            .stream()
             .anyMatch(pieceThatAttacks -> {
                 var possibleAttackingMoves = pieceThatAttacks.ListAllPossibleMoves();
                 var isMate = possibleAttackingMoves.stream().anyMatch(attackingMove -> {
                     var boardBeforeFirstMove = board.Copy();
                     if(boardBeforeFirstMove.MovePiece(attackingMove)){
                         if(boardBeforeFirstMove.CheckForMate(color)){
-                            var noAvailableDefences = boardBeforeFirstMove.GetPieces().stream()
-                                .filter(pieceThatDefends -> pieceThatDefends.color != color)
+                            var noAvailableDefences = boardBeforeFirstMove.GetOpposingTeam(color)
+                                .stream()
                                 .allMatch(pieceThatDefends -> {
                                     var possibleDefendingMoves = pieceThatDefends.ListAllPossibleMoves();
                                     var noCounterMoves = possibleDefendingMoves.stream().allMatch(defendingMove -> {
@@ -60,16 +60,16 @@ public class ChessSolver implements Setup, Solver {
     @Override
     public Optional<Move> findStalemateInOneMove(Color color) {
         AtomicReference<Optional<Move>> stalemateMove = new AtomicReference<>(Optional.empty());
-        board.GetPieces().stream()
-            .filter(pieceThatAttacks -> pieceThatAttacks.color == color)
+        board.GetAlliedTeam(color)
+            .stream()
             .anyMatch(pieceThatAttacks -> {
                 var possibleAttackingMoves = pieceThatAttacks.ListAllPossibleMoves();
                 var isStalemate = possibleAttackingMoves.stream().anyMatch(attackingMove -> {
                     var boardBeforeFirstMove = board.Copy();
                     if(boardBeforeFirstMove.MovePiece(attackingMove)){
                         if(!boardBeforeFirstMove.CheckForMate(color)){
-                            var noAvailableActions = boardBeforeFirstMove.GetPieces().stream()
-                                .filter(pieceThatDefends -> pieceThatDefends.color != color)
+                            var noAvailableActions = boardBeforeFirstMove.GetOpposingTeam(color)
+                                .stream()
                                 .allMatch(pieceThatDefends -> {
                                     var possibleDefendingMoves = pieceThatDefends.ListAllPossibleMoves();
                                     var noAvailableMoves = possibleDefendingMoves.stream().noneMatch(defendingMove -> {
