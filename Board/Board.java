@@ -52,16 +52,21 @@ public class Board implements IBoardPrototype {
                 piece.getPosition().rank() == move.finalPosition().rank()).findFirst();
         pieceToMove.ifPresent(piece -> {
             if(moveValidator.Validate(move, this)) {
+                var pieceIndex = pieces.indexOf(piece);
                 piece.setPosition(move.finalPosition());
+                pieces.set(pieceIndex, piece);
+                pieceOnTheWayMaybe.ifPresent(pieceOnTheWay ->
+                        pieces.remove(pieceOnTheWay));
                 //Still there is a need to check if king is vulnerable
                 var enemyTeam = pieces.stream().filter(enemy -> piece.color != enemy.color).toList();
                 var alliedKing = pieces.stream().filter(k -> k.color == piece.color && k.pieceType == ChessPiece.KING).findFirst().get();
                 var isKingAlive = enemyTeam.stream().noneMatch(enemy -> {
                     var moves = enemy.ListAllPossibleMoves();
+
                     return moves.stream()
                         .filter(enemyMove -> enemyMove.finalPosition().file() == alliedKing.getPosition().file() &&
                             enemyMove.finalPosition().rank() == alliedKing.getPosition().rank())
-                        .anyMatch(enemyMove -> moveValidator.Validate(enemyMove, this));
+                        .anyMatch(enemyMove -> moveValidator.Validate(enemyMove, this.Copy()));
                 });
                 if (isKingAlive) {
                     if (piece.pieceType == ChessPiece.PAWN) {
@@ -70,8 +75,6 @@ public class Board implements IBoardPrototype {
                             piece.pieceType = ChessPiece.QUEEN;
                         }
                     }
-                    pieceOnTheWayMaybe.ifPresent(pieceOnTheWay ->
-                            pieces.remove(pieceOnTheWay));
                     if (isEnPassantDetected != null) {
                         pieces.remove(isEnPassantDetected);
                         isEnPassantDetected = null;
@@ -108,14 +111,14 @@ public class Board implements IBoardPrototype {
 
     @Override
     public boolean CheckForStalemate(Color color){
-        AtomicBoolean isStalemate = new AtomicBoolean(false);
+        AtomicBoolean isStalemate = new AtomicBoolean(true);
         pieces.stream()
-                .filter(piece -> piece.color == color)
+                .filter(piece -> piece.color != color)
                 .forEach(piece -> {
                     var possibleMoves = piece.ListAllPossibleMoves();
                     possibleMoves.forEach(move -> {
                         if(moveValidator.Validate(move, this.Copy())){
-                            isStalemate.set(true);
+                            isStalemate.set(false);
                         }
                     });
                 });
@@ -161,7 +164,7 @@ public class Board implements IBoardPrototype {
         var horizontalMovement = destination.file().ordinal() - source.file().ordinal();
         var horizontalDirection = horizontalMovement > 0 ? 1 : -1;
         var verticalMovement = destination.rank().ordinal() - source.rank().ordinal();
-        var verticalDirection = horizontalDirection > 0 ? 1 : -1;
+        var verticalDirection = verticalMovement > 0 ? 1 : -1;
         var isDiagonal = abs(horizontalMovement) == abs(verticalMovement);
         if(!isDiagonal && horizontalMovement != 0 && verticalMovement != 0){
             return Collections.emptyList();
@@ -174,7 +177,7 @@ public class Board implements IBoardPrototype {
                 for (int rank = source.rank().ordinal() + verticalDirection;
                      rank * verticalDirection < destination.rank().ordinal() * verticalDirection;
                      rank = rank + verticalDirection) {
-                    if(abs(file) - source.file().ordinal() == abs(rank) - source.rank().ordinal()){
+                    if(abs(abs(file) - source.file().ordinal()) == abs(abs(rank) - source.rank().ordinal())){
                         this.GetPiece(file, rank).ifPresent(piecesBetween::add);
                     }
                 }

@@ -8,25 +8,12 @@ public class Main {
 
     public static void main(String[] args) {
 
-//        Position destination = new Position(File.a, Rank.FIRST);
-//        Position source = new Position(File.h, Rank.EIGHTH);
-//
-//        var horizontalMovement = destination.file().ordinal() - source.file().ordinal();
-//        var horizontalDirection = horizontalMovement > 0 ? 1 : -1;
-//        var verticalMovement = destination.rank().ordinal() - source.rank().ordinal();
-//        var verticalDirection = horizontalDirection > 0 ? 1 : -1;
-//
-//        for (int file = source.file().ordinal() + horizontalDirection; file * horizontalDirection < destination.file().ordinal() * horizontalDirection; file = file + horizontalDirection){
-//            for (int rank = source.rank().ordinal() + verticalDirection; rank * verticalDirection < destination.rank().ordinal() * verticalDirection; rank = rank + verticalDirection) {
-//                if(abs(file) - source.file().ordinal() == abs(rank) - source.rank().ordinal()){
-//                    System.out.println("%d %d".formatted(file, rank));
-//                }
-//            }
-//        }
-
-
         ChessSolver chessSolver = new ChessSolver();
-        var color = Setup_1(chessSolver);
+        Color color;
+        color = Setup_Stalemate_1(chessSolver);
+        var result = chessSolver.findStalemateInOneMove(color);
+        System.out.println(result.get());
+        color = Setup_1(chessSolver);
         chessSolver.findMateInOneMove(color)
                 .ifPresent(move -> {
                     System.out.println("Test 1 result: " + move);
@@ -41,7 +28,7 @@ public class Main {
                 .ifPresent(move -> {
                     System.out.println("Test 2 result: " + move);
                     if(!move.toString().equals("G4-G7")){
-                       // throw new RuntimeException("Test 2 - failed.");
+                       throw new RuntimeException("Test 2 - failed.");
                     };
                 } );
         chessSolver.reset();
@@ -111,6 +98,16 @@ public class Main {
                 .ifPresent(move -> {
                     System.out.println("Test 9 result: " + move);
                     if(!move.toString().equals("B3-B1")){
+                        throw new RuntimeException("Test 9 - failed.");
+                    };
+                } );
+        chessSolver.reset();
+
+        color = Setup_9(chessSolver);
+        chessSolver.findStalemateInOneMove(color)
+                .ifPresent(move -> {
+                    System.out.println("Test 9 result: " + move);
+                    if(!move.toString().equals("B3-D3")){
                         throw new RuntimeException("Test 9 - failed.");
                     };
                 } );
@@ -613,5 +610,18 @@ public class Main {
         chessSolver.addChessPiece(new Position(File.f, Rank.FIRST), Color.WHITE, ChessPiece.ROOK);
         chessSolver.addChessPiece(new Position(File.g, Rank.FIRST), Color.WHITE, ChessPiece.KING);
         return Color.WHITE;
+    }
+
+    //Stalemate: G3-D
+    private static Color Setup_Stalemate_1(ChessSolver chessSolver){
+        chessSolver.addChessPiece(new Position(File.e, Rank.EIGHTH), Color.BLACK, ChessPiece.BISHOP);
+        chessSolver.addChessPiece(new Position(File.h, Rank.EIGHTH), Color.BLACK, ChessPiece.KING);
+        chessSolver.addChessPiece(new Position(File.f, Rank.SEVENTH), Color.BLACK, ChessPiece.PAWN);
+        chessSolver.addChessPiece(new Position(File.g, Rank.SEVENTH), Color.BLACK, ChessPiece.PAWN);
+        chessSolver.addChessPiece(new Position(File.h, Rank.SEVENTH), Color.BLACK, ChessPiece.PAWN);
+        chessSolver.addChessPiece(new Position(File.g, Rank.SIXTH), Color.WHITE, ChessPiece.KNIGHT);
+        chessSolver.addChessPiece(new Position(File.g, Rank.FIFTH), Color.WHITE, ChessPiece.KING);
+        chessSolver.addChessPiece(new Position(File.c, Rank.FOURTH), Color.BLACK, ChessPiece.ROOK);
+        return Color.BLACK;
     }
 }
