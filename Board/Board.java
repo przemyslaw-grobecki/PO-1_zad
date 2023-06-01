@@ -49,6 +49,14 @@ public class Board implements IBoardPrototype {
         pieceToMove.ifPresent(piece -> {
             if(moveValidator.Validate(move, this)) {
                 piece.setPosition(move.finalPosition());
+                pieceOnTheWayMaybe.ifPresent(pieceOnTheWay ->
+                        pieces.remove(pieceOnTheWay));
+                if (piece.pieceType == ChessPiece.PAWN) {
+                    if ((piece.color == Color.WHITE && piece.getPosition().rank() == Rank.EIGHTH) ||
+                            (piece.color == Color.BLACK && piece.getPosition().rank() == Rank.FIRST)) {
+                        piece.pieceType = ChessPiece.QUEEN;
+                    }
+                }
                 //Still there is a need to check if king is vulnerable
                 var enemyTeam = pieces.stream().filter(enemy -> piece.color != enemy.color).toList();
                 var alliedKing = pieces.stream().filter(k -> k.color == piece.color && k.pieceType == ChessPiece.KING).findFirst().get();
@@ -60,14 +68,6 @@ public class Board implements IBoardPrototype {
                         .anyMatch(enemyMove -> moveValidator.Validate(enemyMove, this));
                 });
                 if (isKingAlive) {
-                    if (piece.pieceType == ChessPiece.PAWN) {
-                        if ((piece.color == Color.WHITE && piece.getPosition().rank() == Rank.EIGHTH) ||
-                                (piece.color == Color.BLACK && piece.getPosition().rank() == Rank.FIRST)) {
-                            piece.pieceType = ChessPiece.QUEEN;
-                        }
-                    }
-                    pieceOnTheWayMaybe.ifPresent(pieceOnTheWay ->
-                            pieces.remove(pieceOnTheWay));
                     if (isEnPassantDetected != null) {
                         pieces.remove(isEnPassantDetected);
                         isEnPassantDetected = null;
