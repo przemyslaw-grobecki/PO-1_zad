@@ -5,7 +5,7 @@ public class Main {
 
     public static void main(String[] args) {
         ChessSolver chessSolver = new ChessSolver();
-        var color = Setup_17(chessSolver);
+        var color = Setup_MateByPromotion(chessSolver);
         chessSolver.findMateInOneMove(color)
                 .ifPresent(System.out::println);
 //        chessSolver.findStalemateInOneMove(color)
@@ -408,6 +408,21 @@ public class Main {
         chessSolver.addChessPiece(new Position(File.g, Rank.SECOND), Color.WHITE, ChessPiece.PAWN);
         chessSolver.addChessPiece(new Position(File.f, Rank.FIRST), Color.WHITE, ChessPiece.ROOK);
         chessSolver.addChessPiece(new Position(File.g, Rank.FIRST), Color.WHITE, ChessPiece.KING);
+        return Color.WHITE;
+    }
+
+    private static Color Setup_MateByPromotion(ChessSolver chessSolver){
+        chessSolver.addChessPiece(new Position(File.f, Rank.EIGHTH), Color.BLACK, ChessPiece.KING);
+        chessSolver.addChessPiece(new Position(File.g, Rank.EIGHTH), Color.BLACK, ChessPiece.ROOK);
+        chessSolver.addChessPiece(new Position(File.b, Rank.SEVENTH), Color.WHITE, ChessPiece.KNIGHT);
+        chessSolver.addChessPiece(new Position(File.c, Rank.SEVENTH), Color.WHITE, ChessPiece.PAWN);
+        chessSolver.addChessPiece(new Position(File.h, Rank.SEVENTH), Color.WHITE, ChessPiece.ROOK);
+        chessSolver.addChessPiece(new Position(File.b, Rank.SIXTH), Color.WHITE, ChessPiece.PAWN);
+        chessSolver.addChessPiece(new Position(File.b, Rank.FIFTH), Color.WHITE, ChessPiece.BISHOP);
+        chessSolver.addChessPiece(new Position(File.d, Rank.FOURTH), Color.BLACK, ChessPiece.PAWN);
+        chessSolver.addChessPiece(new Position(File.e, Rank.FOURTH), Color.BLACK, ChessPiece.BISHOP);
+        chessSolver.addChessPiece(new Position(File.f, Rank.FOURTH), Color.WHITE, ChessPiece.PAWN);
+        chessSolver.addChessPiece(new Position(File.h, Rank.SECOND), Color.WHITE, ChessPiece.KING);
         return Color.WHITE;
     }
 }

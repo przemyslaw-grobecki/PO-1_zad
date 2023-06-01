@@ -2,6 +2,7 @@ package Board;
 
 import MoveValidators.*;
 import Pieces.Piece;
+import Pieces.PieceFactory;
 import edu.uj.po.interfaces.*;
 
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import static java.lang.Math.abs;
 public class Board implements IBoardPrototype {
 
     private Piece isEnPassantDetected = null;
+    private PieceFactory pieceFactory = new PieceFactory();
     private ArrayList<Piece> pieces;
     private MoveValidator moveValidator;
     public Board(){
@@ -56,12 +58,14 @@ public class Board implements IBoardPrototype {
             pieceToMove.get().setPosition(move.finalPosition());
             //Strike if possible
             pieceOnTheWayMaybe.ifPresent(pieceOnTheWay ->
-                    pieces.remove(pieceOnTheWay));
+                pieces.remove(pieceOnTheWay));
             //Promote if possible
             if (pieceToMove.get().pieceType == ChessPiece.PAWN) {
                 if ((pieceToMove.get().color == Color.WHITE && pieceToMove.get().getPosition().rank() == Rank.EIGHTH) ||
                         (pieceToMove.get().color == Color.BLACK && pieceToMove.get().getPosition().rank() == Rank.FIRST)) {
-                    pieceToMove.get().pieceType = ChessPiece.QUEEN;
+                    pieces.remove(pieceToMove.get());
+                    pieces.add(pieceFactory.CreatePiece(ChessPiece.QUEEN, pieceToMove.get().getPosition(), pieceToMove.get().color));
+                    pieceToMove = GetPiece(pieceToMove.get().getPosition());
                 }
             }
             //Still there is a need to check if king is vulnerable
